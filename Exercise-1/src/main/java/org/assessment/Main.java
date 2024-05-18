@@ -2,7 +2,6 @@ package org.assessment;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
         int[] arr = {1,3,6,4,1,2};
         int[] arr1 = {5, -1, -3};
         System.out.println(smallestNonOccurringNumber(arr));
