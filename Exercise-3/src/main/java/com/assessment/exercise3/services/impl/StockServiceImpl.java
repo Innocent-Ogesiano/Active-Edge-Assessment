@@ -25,20 +25,21 @@ import static com.assessment.exercise3.utils.AppUtil.mapStockToStockResponseDto;
 @Service
 @RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
+
     private final StockRepository stockRepository;
 
     @Override
     public ResponseEntity<ApiResponse<List<StockResponseDto>>> getAllStocks(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         Page<Stock> stockPage = stockRepository.findAll(pageable);
-        if (stockPage.hasContent()) {
-            List<StockResponseDto> stockResponseDtos = stockPage.get()
-                    .map(AppUtil::mapStockToStockResponseDto)
-                    .toList();
-            ApiResponse<List<StockResponseDto>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Successful", stockResponseDtos);
-            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        if (stockPage.isEmpty()) {
+            throw new StocksNotAvailableException("Stocks not available at the moment");
         }
-        throw new StocksNotAvailableException("Stocks not available at the moment");
+        List<StockResponseDto> stockResponseDtos = stockPage.get()
+                .map(AppUtil::mapStockToStockResponseDto)
+                .toList();
+        ApiResponse<List<StockResponseDto>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Successful", stockResponseDtos);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @Override
