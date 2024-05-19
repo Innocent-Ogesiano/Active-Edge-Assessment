@@ -35,7 +35,7 @@ public class StockServiceImpl implements StockService {
             List<StockResponseDto> stockResponseDtos = stockPage.get()
                     .map(AppUtil::mapStockToStockResponseDto)
                     .toList();
-            ApiResponse<List<StockResponseDto>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Success", stockResponseDtos);
+            ApiResponse<List<StockResponseDto>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Successful", stockResponseDtos);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
         }
         throw new StocksNotAvailableException("Stocks not available at the moment");
@@ -47,7 +47,7 @@ public class StockServiceImpl implements StockService {
                 .orElseThrow(()-> new StockNotFoundException("Stock not found"));
         StockResponseDto stockResponseDto = mapStockToStockResponseDto(stock);
 
-        ApiResponse<StockResponseDto> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Success", stockResponseDto);
+        ApiResponse<StockResponseDto> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Successful", stockResponseDto);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
@@ -55,17 +55,17 @@ public class StockServiceImpl implements StockService {
     public ResponseEntity<ApiResponse<StockResponseDto>> updateStock(String stockName, StockDto stockDto) {
         Stock stock = stockRepository.findByName(stockName)
                 .orElseThrow(()-> new StockNotFoundException("Stock not found"));
-        return saveStockAndReturnStockResponseDto(stockDto, stock);
+        return saveStockAndReturnStockResponseDto(stockDto, stock, HttpStatus.OK);
     }
 
-    private ResponseEntity<ApiResponse<StockResponseDto>> saveStockAndReturnStockResponseDto(StockDto stockDto, Stock stock) {
+    private ResponseEntity<ApiResponse<StockResponseDto>> saveStockAndReturnStockResponseDto(StockDto stockDto, Stock stock, HttpStatus httpStatus) {
         stock.setName(stockDto.name());
         stock.setCurrentPrice(stockDto.currentPrice());
         stock = stockRepository.save(stock);
 
         StockResponseDto stockResponseDto = mapStockToStockResponseDto(stock);
-        ApiResponse<StockResponseDto> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), "Success", stockResponseDto);
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        ApiResponse<StockResponseDto> apiResponse = new ApiResponse<>(httpStatus.value(), "Successful", stockResponseDto);
+        return new ResponseEntity<>(apiResponse, httpStatus);
     }
 
     @Override
@@ -75,6 +75,6 @@ public class StockServiceImpl implements StockService {
                     throw new StockAlreadyExistsException("Stock Already exists");
                 });
         Stock stock = new Stock();
-        return saveStockAndReturnStockResponseDto(stockDto, stock);
+        return saveStockAndReturnStockResponseDto(stockDto, stock, HttpStatus.CREATED);
     }
 }
